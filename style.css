@@ -1,0 +1,38 @@
+:root { color-scheme: light; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; color: #39413d; background: #f7f6f2; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; }
+main { width: min(1040px, 100%); padding: 48px 32px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.eyebrow { font-weight: 800; letter-spacing: .22em; font-size: 14px; }
+.badge { color: #737a73; border: 1px solid #d9ddd3; border-radius: 4px; padding: 7px 10px; font-size: 10px; letter-spacing: .08em; }
+h1 { font-family: system-ui, sans-serif; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.045em; font-weight: 600; margin: 48px 0 12px; }
+.intro { font-size: 13px; line-height: 1.7; color: #737a73; }
+.playfield { margin-top: 32px; border: 1px solid #d9ddd3; border-radius: 8px; overflow: hidden; background: #fffefb; }
+canvas { display: block; width: 100%; height: auto; outline-offset: -4px; touch-action: manipulation; }
+canvas:focus-visible, button:focus-visible { outline: 2px solid #607c63; }
+.game-footer { border-top: 1px solid #ebece5; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 10px; letter-spacing: .12em; }
+button { font: inherit; color: inherit; background: transparent; border: 1px solid #d9ddd3; border-radius: 4px; padding: 7px 12px; cursor: pointer; }
+button:disabled { opacity: .4; cursor: default; }
+.controls { display: flex; flex-wrap: wrap; gap: 18px 28px; margin-top: 24px; font-size: 11px; color: #737a73; line-height: 2; }
+kbd { display: inline-block; font: inherit; color: #39413d; border: 1px solid #d9ddd3; border-bottom-width: 2px; border-radius: 4px; padding: 0 6px; }
+.note { margin-top: 32px; font-size: 10px; color: #92968f; line-height: 1.8; }
+@media (max-width: 540px) { main { padding: 28px 16px; } header { flex-wrap: wrap; } h1 { margin-top: 32px; } .controls { gap: 8px 16px; } }
+
+.buttons { display: flex; gap: 8px; letter-spacing: normal; }
+@media (max-width: 540px) { .game-footer { flex-wrap: wrap; gap: 12px; } }
+
+.score-panel { margin-top: 16px; padding: 20px; border: 1px solid #d9ddd3; border-radius: 8px; background: #fffefb; }
+.score-panel[hidden] { display: none; }
+.score-panel h2 { font-size: 17px; margin: 0 0 10px; }
+.score-panel h3 { font-size: 12px; margin-top: 24px; }
+.score-panel p, .score-panel label, .score-panel li { font-size: 12px; line-height: 1.7; }
+.name-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.name-row input { min-width: 0; flex: 1 1 180px; padding: 10px; font: inherit; color: inherit; border: 1px solid #b6c0b2; border-radius: 4px; background: #fff; }
+.name-row button { font-size: 12px; }
+input:focus-visible { outline: 2px solid #607c63; outline-offset: 2px; }
+#save-result { color: #60705f; }
+#player-bests { padding-left: 24px; }
+#player-bests li { overflow-wrap: anywhere; }
+
+.game-title { margin: 0; font-size: 28px; }
+#save-result:empty { display: none; }

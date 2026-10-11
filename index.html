@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Little Cat — Vibe Coding Practice</title>
+  <meta name="description" content="A tiny pixel-art cat runner made for vibe coding practice. Jump rocks, duck birds, and save your best score.">
+  <link rel="stylesheet" href="style.css">
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><h1 class="game-title">Little Cat</h1></header>
+    <section class="playfield" aria-label="Cat runner game">
+      <canvas id="game" width="960" height="320" tabindex="0" aria-label="Cat runner. Space or up arrow to jump, down arrow to duck, P to pause."></canvas>
+      <div class="game-footer"><span id="status" role="status">Ready</span><div class="buttons"><button id="sound" type="button" aria-pressed="false">Sound: off</button><button id="pause" type="button" disabled>Pause</button></div></div>
+    </section>
+    <section id="score-panel" class="score-panel" aria-labelledby="score-title" hidden>
+      <h2 id="score-title">Save your run</h2>
+      <p id="run-result"></p>
+      <form id="score-form">
+        <label for="player-name">Player name</label>
+        <div class="name-row">
+          <input id="player-name" name="player" type="text" maxlength="24" required autocomplete="off" placeholder="Your name" aria-describedby="save-result">
+          <button id="save-score" type="submit">Save score</button>
+          <button id="play-again" type="button">Play again</button>
+        </div>
+      </form>
+      <p id="save-result" role="status"></p>
+      <h3>Player bests</h3>
+      <ol id="player-bests"></ol>
+    </section>
+    <div class="controls"><span><kbd>SPACE</kbd> Jump</span><span><kbd>↓</kbd> Duck</span><span><kbd>P</kbd> Pause</span></div>
+    <p id="storage-note" class="note" role="status" hidden></p>
+    <footer class="note">Made for vibe coding practice.</footer>
+  </main>
+</body>
+</html>
