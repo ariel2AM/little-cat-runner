@@ -1,6 +1,8 @@
 # Little Cat 🐾
 
-**A mini game made for vibe coding practice.** Built iteratively with AI assistance to explore game mechanics, pixel animation, and simple browser development. This is a learning project, not an official Google game.
+**A mini game made for vibe coding practice.** 
+See in Githhub Page:https://ariel2am.github.io/little-cat-runner/
+Built iteratively with AI assistance to explore game mechanics, pixel animation, and simple browser development. This is a learning project, not an official Google game.
 
 An endless runner inspired by [Chrome’s Dinosaur Game](https://en.wikipedia.org/wiki/Dinosaur_Game), featuring a monochrome pixel cat, rocks, and birds. Written in plain HTML, CSS, and JavaScript with no dependencies or build step.
 
