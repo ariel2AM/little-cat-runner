@@ -451,10 +451,10 @@
     }
     obstacles.forEach(drawObstacle);
     drawCat();
-    ctx.textAlign = 'right'; ctx.fillStyle = color('ink'); ctx.font = '14px monospace';
-    ctx.fillText('BEST ' + String(runBest).padStart(5, '0') + '   ' + String(score).padStart(5, '0'), WIDTH - 28, 35);
+    ctx.textAlign = 'right'; ctx.fillStyle = color('ink'); ctx.font = '30px monospace';
+    ctx.fillText('BEST ' + String(runBest).padStart(5, '0') + '   ' + String(score).padStart(5, '0'), WIDTH - 28, 42);
     if (mode !== 'running') {
-      ctx.textAlign = 'center'; ctx.fillStyle = color('muted'); ctx.font = '14px monospace';
+      ctx.textAlign = 'center'; ctx.fillStyle = color('muted'); ctx.font = '28px monospace';
       ctx.fillText(mode === 'ready' ? 'PRESS SPACE TO START' : mode === 'over' ? 'GAME OVER' : 'PAUSED', WIDTH / 2, 135);
 
     }
