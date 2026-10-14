@@ -211,14 +211,14 @@
     lastTime = null;
     accumulator = 0;
   }
-  function clearInput() { held.clear(); jumpPointers.clear(); duckPointers.clear(); releaseJump(); }
+  function clearInput() { held.clear(); jumpPointers.clear(); duckPointers.clear(); }
   function togglePause() {
     if (mode === 'ready') return;
     if (mode === 'over') { clearInput(); unlockAudio(); restart(); return; }
     clearInput();
     buffer = 0;
     const next = mode === 'running' ? 'paused' : 'running';
-    if (next === 'running') unlockAudio();
+    if (next === 'running') { releaseJump(); unlockAudio(); }
     setMode(next);
   }
   function jumpHeld() { return held.has('Space') || held.has('ArrowUp') || jumpPointers.size > 0; }
