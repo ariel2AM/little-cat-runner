@@ -18,7 +18,7 @@ Download and extract the project, then open `index.html` in Chrome. Keep `game.j
 
 Only one jump is allowed before landing. The cat has short legs, pointed ears, and a fluffy tail that responds to actions. The game includes increasing speed, day/night transitions, optional synthesized sounds, and local player records.
 
-Repeated names share one leaderboard row. The highest score is retained, along with up to 50 recent runs per player. Names and scores stay in your browser, not on a server. Moving from local play to the hosted site creates a separate set of records. Clearing browser data removes saved scores.
+Repeated names share one leaderboard row. The highest score and total number of saved runs are retained, along with up to 50 recent scores per player. Names and scores stay in your browser, not on a server. Moving from local play to the hosted site creates a separate set of records. Clearing browser data removes saved scores.
 
 ## Host on GitHub Pages
 
@@ -36,6 +36,7 @@ The `.nojekyll` file allows direct static hosting. All asset paths are relative,
 - `index.html` — game page and score form
 - `style.css` — responsive layout
 - `game.js` — gameplay, pixel sprites, sound, and saved records
+- `favicon.svg` — cat icon for browser tabs
 - `.nojekyll` — static GitHub Pages marker
 
 ## Testing

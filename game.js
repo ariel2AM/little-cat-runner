@@ -25,13 +25,16 @@
         if (!entry || typeof entry.name !== 'string' || !Number.isSafeInteger(entry.best) || entry.best < 0) continue;
         const name = cleanName(entry.name);
         if (!name) continue;
-        const attempts = Array.isArray(entry.attempts) ? entry.attempts.filter(n => Number.isSafeInteger(n) && n >= 0).slice(-MAX_RECENT_RUNS) : [entry.best];
+        const validAttempts = Array.isArray(entry.attempts) ? entry.attempts.filter(n => Number.isSafeInteger(n) && n >= 0) : [entry.best];
+        const attempts = validAttempts.slice(-MAX_RECENT_RUNS);
+        const runs = Number.isSafeInteger(entry.runs) && entry.runs >= validAttempts.length ? entry.runs : validAttempts.length;
         const best = attempts.reduce((best, value) => Math.max(best, value), entry.best);
         const existing = players.find(p => nameKey(p.name) === nameKey(name));
         if (existing) {
           existing.best = Math.max(existing.best, best);
           existing.attempts = existing.attempts.concat(attempts).slice(-MAX_RECENT_RUNS);
-        } else players.push({ name, best, attempts });
+          existing.runs += runs;
+        } else players.push({ name, best, attempts, runs });
       }
     }
   } catch { /* An unavailable or invalid save must not prevent playing. */ }
@@ -40,7 +43,7 @@
     const ranked = [...players].sort((a, b) => b.best - a.best || a.name.localeCompare(b.name));
     for (const player of ranked) {
       const item = document.createElement('li');
-      item.textContent = player.name + ' — Best: ' + player.best + ' · Recent runs: ' + player.attempts.length;
+      item.textContent = player.name + ' — Best: ' + player.best + ' · Saved runs: ' + player.runs;
       playerBests.append(item);
     }
     if (!ranked.length) {
@@ -56,12 +59,13 @@
     if (!name) { saveResult.textContent = 'Please enter a player name.'; nameInput.focus(); return; }
     nameInput.value = name;
     let player = players.find(p => nameKey(p.name) === nameKey(name));
-    if (!player) { player = { name, best: score, attempts: [] }; players.push(player); }
+    if (!player) { player = { name, best: score, attempts: [], runs: 0 }; players.push(player); }
     else player.best = Math.max(player.best, score);
     // Every completed run is accepted, including identical names and scores.
     // The leaderboard still has exactly one row per normalized player name.
     player.attempts.push(score);
     player.attempts = player.attempts.slice(-MAX_RECENT_RUNS);
+    player.runs += 1;
     let persisted = true;
     try { localStorage.setItem(PLAYER_KEY, JSON.stringify({ version: 1, players })); }
     catch { persisted = false; }
@@ -234,15 +238,14 @@
   }
   window.addEventListener('keydown', event => {
     // Typing names and using form controls must never trigger game shortcuts.
-    if (scorePanel.contains(event.target)) return;
+    if (event.target !== canvas && event.target.closest?.('button, input, textarea, select, [contenteditable]')) return;
     if (!['Space', 'ArrowUp', 'ArrowDown', 'KeyP'].includes(event.code)) return;
-    // Let the pause button retain standard keyboard activation.
-    if ((event.target === pauseButton || event.target === soundButton) && event.code === 'Space') return;
     event.preventDefault();
     if (event.repeat) return;
     if (event.code === 'KeyP') { togglePause(); return; }
     held.add(event.code);
-    if (event.code !== 'ArrowDown') requestJump();
+    if (event.code === 'ArrowDown') buffer = 0;
+    else requestJump();
   });
   window.addEventListener('keyup', event => {
     held.delete(event.code);

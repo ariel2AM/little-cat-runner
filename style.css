@@ -8,7 +8,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 h1 { font-family: system-ui, sans-serif; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.045em; font-weight: 600; margin: 48px 0 12px; }
 .intro { font-size: 13px; line-height: 1.7; color: #737a73; }
 .playfield { margin-top: 32px; border: 1px solid #d9ddd3; border-radius: 8px; overflow: hidden; background: #fffefb; }
-canvas { display: block; width: 100%; height: auto; outline-offset: -4px; touch-action: none; image-rendering: pixelated; }
+canvas { display: block; width: 100%; aspect-ratio: 3 / 1; height: auto; outline-offset: -4px; touch-action: none; image-rendering: pixelated; }
 canvas:focus-visible, button:focus-visible { outline: 2px solid #607c63; }
 .game-footer { border-top: 1px solid #ebece5; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 10px; letter-spacing: .12em; }
 button { font: inherit; color: inherit; background: transparent; border: 1px solid #d9ddd3; border-radius: 4px; padding: 7px 12px; cursor: pointer; }
