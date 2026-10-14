@@ -5,6 +5,7 @@
   const status = document.getElementById('status');
   const pauseButton = document.getElementById('pause');
   const soundButton = document.getElementById('sound');
+  const duckButton = document.getElementById('duck');
   const storageNote = document.getElementById('storage-note');
   const scorePanel = document.getElementById('score-panel');
   const scoreForm = document.getElementById('score-form');
@@ -13,6 +14,7 @@
   const saveResult = document.getElementById('save-result');
   const playerBests = document.getElementById('player-bests');
   const PLAYER_KEY = 'little-rex.players.v1';
+  const MAX_RECENT_RUNS = 50;
   let players = [], submitted = false;
   const cleanName = value => value.normalize('NFKC').trim().replace(/\s+/g, ' ').slice(0, 24);
   const nameKey = name => cleanName(name).toLowerCase();
@@ -23,12 +25,12 @@
         if (!entry || typeof entry.name !== 'string' || !Number.isSafeInteger(entry.best) || entry.best < 0) continue;
         const name = cleanName(entry.name);
         if (!name) continue;
-        const attempts = Array.isArray(entry.attempts) ? entry.attempts.filter(n => Number.isSafeInteger(n) && n >= 0) : [entry.best];
+        const attempts = Array.isArray(entry.attempts) ? entry.attempts.filter(n => Number.isSafeInteger(n) && n >= 0).slice(-MAX_RECENT_RUNS) : [entry.best];
         const best = attempts.reduce((best, value) => Math.max(best, value), entry.best);
         const existing = players.find(p => nameKey(p.name) === nameKey(name));
         if (existing) {
           existing.best = Math.max(existing.best, best);
-          existing.attempts = existing.attempts.concat(attempts);
+          existing.attempts = existing.attempts.concat(attempts).slice(-MAX_RECENT_RUNS);
         } else players.push({ name, best, attempts });
       }
     }
@@ -38,7 +40,7 @@
     const ranked = [...players].sort((a, b) => b.best - a.best || a.name.localeCompare(b.name));
     for (const player of ranked) {
       const item = document.createElement('li');
-      item.textContent = player.name + ' — Best: ' + player.best + ' · Saved runs: ' + player.attempts.length;
+      item.textContent = player.name + ' — Best: ' + player.best + ' · Recent runs: ' + player.attempts.length;
       playerBests.append(item);
     }
     if (!ranked.length) {
@@ -59,6 +61,7 @@
     // Every completed run is accepted, including identical names and scores.
     // The leaderboard still has exactly one row per normalized player name.
     player.attempts.push(score);
+    player.attempts = player.attempts.slice(-MAX_RECENT_RUNS);
     let persisted = true;
     try { localStorage.setItem(PLAYER_KEY, JSON.stringify({ version: 1, players })); }
     catch { persisted = false; }
@@ -70,21 +73,35 @@
     document.getElementById('play-again').focus();
   });
   document.getElementById('play-again').addEventListener('click', () => {
-    held.clear(); restart(); canvas.focus();
+    clearInput(); unlockAudio(); restart(); canvas.focus();
   });
   const WIDTH = 960, HEIGHT = 320, GROUND = 242;
+  function resizeCanvas() {
+    const scale = Math.min(window.devicePixelRatio || 1, 3);
+    const width = Math.max(1, Math.round(canvas.clientWidth * scale));
+    const height = Math.max(1, Math.round(canvas.clientHeight * scale));
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    ctx.setTransform(width / WIDTH, 0, 0, height / HEIGHT, 0, 0);
+  }
+  new ResizeObserver(resizeCanvas).observe(canvas);
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
   const STEP = 1 / 120, SPEED = 280;
   // Choose the height and time to apex, then derive the jump physics.
   const JUMP_HEIGHT = 96, APEX_TIME = 0.34;
   const GRAVITY = 2 * JUMP_HEIGHT / (APEX_TIME * APEX_TIME);
   const JUMP_SPEED = -2 * JUMP_HEIGHT / APEX_TIME;
   const held = new Set();
+  const jumpPointers = new Set(), duckPointers = new Set();
   const rex = { x: 96, y: GROUND, vy: 0, grounded: true, landing: 0 };
   let mode = 'ready', distance = 0, elapsed = 0, buffer = 0;
   let lastTime = null, accumulator = 0;
   let obstacles = [], spawnIn = 0, score = 0, runBest = 0, deadAt = 0;
   const SAVE_KEY = 'little-rex.save.v1';
-  let soundEnabled = false, audioContext = null, master = null, milestone = 0;
+  let soundEnabled = false, audioUnavailableFlag = false, audioContext = null, master = null, milestone = 0;
   let savedBest = 0, nightBlend = 0;
   const DAY = { bg: [255, 254, 251], ink: [72, 82, 74], muted: [115, 122, 115], cloud: [222, 223, 213], ground: [165, 170, 157] };
   const NIGHT = { bg: [30, 36, 43], ink: [226, 232, 216], muted: [182, 192, 180], cloud: [83, 94, 107], ground: [122, 137, 136] };
@@ -112,13 +129,13 @@
     } catch { storageUnavailable(); }
   }
   function syncSoundButton() {
-    soundButton.textContent = soundEnabled ? 'Sound: on' : 'Sound: off';
+    soundButton.textContent = audioUnavailableFlag ? 'Sound unavailable' : soundEnabled ? 'Sound: on' : 'Sound: off';
     soundButton.setAttribute('aria-pressed', String(soundEnabled));
   }
   function audioUnavailable() {
     soundEnabled = false;
+    audioUnavailableFlag = true;
     syncSoundButton();
-    soundButton.textContent = 'Sound unavailable';
   }
   function unlockAudio() {
     if (!soundEnabled) return;
@@ -132,7 +149,7 @@
         master.connect(audioContext.destination);
       }
       master.gain.value = Math.pow(10, -22 / 20);
-      if (audioContext.state === 'suspended') audioContext.resume().catch(audioUnavailable);
+      if (audioContext.state !== 'running') audioContext.resume().catch(audioUnavailable);
     } catch { audioUnavailable(); }
   }
   function tone(kind) {
@@ -154,6 +171,7 @@
   }
   soundButton.addEventListener('click', () => {
     soundEnabled = !soundEnabled;
+    if (soundEnabled) audioUnavailableFlag = false;
     if (soundEnabled) { unlockAudio(); tone('point'); }
     else if (master) master.gain.value = 0;
     syncSoundButton(); save();
@@ -173,7 +191,7 @@
     mode = next;
     if (next === 'paused' || next === 'over') save();
     if (next === 'over') {
-      held.clear(); buffer = 0;
+      clearInput(); buffer = 0;
       scorePanel.hidden = false;
       nameInput.disabled = false;
       nameInput.value = '';
@@ -189,14 +207,18 @@
     lastTime = null;
     accumulator = 0;
   }
+  function clearInput() { held.clear(); jumpPointers.clear(); duckPointers.clear(); releaseJump(); }
   function togglePause() {
     if (mode === 'ready') return;
-    if (mode === 'over') { held.clear(); restart(); return; }
-    held.clear();
+    if (mode === 'over') { clearInput(); unlockAudio(); restart(); return; }
+    clearInput();
     buffer = 0;
-    setMode(mode === 'running' ? 'paused' : 'running');
+    const next = mode === 'running' ? 'paused' : 'running';
+    if (next === 'running') unlockAudio();
+    setMode(next);
   }
-  function jumpHeld() { return held.has('Space') || held.has('ArrowUp') || held.has('Pointer'); }
+  function jumpHeld() { return held.has('Space') || held.has('ArrowUp') || jumpPointers.size > 0; }
+  function duckHeld() { return held.has('ArrowDown') || duckPointers.size > 0; }
   function requestJump() {
     unlockAudio();
     if (mode === 'over') {
@@ -229,15 +251,29 @@
   canvas.addEventListener('pointerdown', event => {
     if (event.button !== 0) return;
     canvas.focus();
-    canvas.setPointerCapture(event.pointerId);
-    held.add('Pointer');
+    try { canvas.setPointerCapture(event.pointerId); } catch { /* Release is still handled globally. */ }
+    jumpPointers.add(event.pointerId);
     requestJump();
   });
-  function pointerEnd() { held.delete('Pointer'); releaseJump(); }
+  function pointerEnd(event) { jumpPointers.delete(event.pointerId); releaseJump(); }
   canvas.addEventListener('pointerup', pointerEnd);
   canvas.addEventListener('pointercancel', pointerEnd);
+  canvas.addEventListener('lostpointercapture', pointerEnd);
+  duckButton.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    try { duckButton.setPointerCapture(event.pointerId); } catch { /* Release is still handled globally. */ }
+    duckPointers.add(event.pointerId);
+    buffer = 0;
+  });
+  function duckEnd(event) { duckPointers.delete(event.pointerId); }
+  duckButton.addEventListener('pointerup', duckEnd);
+  duckButton.addEventListener('pointercancel', duckEnd);
+  duckButton.addEventListener('lostpointercapture', duckEnd);
+  window.addEventListener('pointerup', event => { pointerEnd(event); duckEnd(event); });
+  window.addEventListener('pointercancel', event => { pointerEnd(event); duckEnd(event); });
   pauseButton.addEventListener('click', togglePause);
-  function suspend() { held.clear(); buffer = 0; if (mode === 'running') setMode('paused'); }
+  function suspend() { clearInput(); buffer = 0; if (mode === 'running') setMode('paused'); }
   window.addEventListener('blur', suspend);
   window.addEventListener('pagehide', save);
   document.addEventListener('visibilitychange', () => { if (document.hidden) suspend(); });
@@ -253,7 +289,7 @@
     if (Math.floor(score / 100) > milestone) { milestone = Math.floor(score / 100); tone('point'); }
     const targetNight = Math.floor(score / 250) % 2;
     nightBlend += Math.max(-dt / 1.5, Math.min(dt / 1.5, targetNight - nightBlend));
-    if (buffer > 0 && rex.grounded && !held.has('ArrowDown')) {
+    if (buffer > 0 && rex.grounded && !duckHeld()) {
       tone('jump');
       rex.vy = JUMP_SPEED * (jumpHeld() ? 1 : 0.72);
       rex.grounded = false;
@@ -261,7 +297,7 @@
     }
     buffer = Math.max(0, buffer - dt);
     if (!rex.grounded) {
-      const multiplier = held.has('ArrowDown') ? 3 : rex.vy > 0 ? 1.5 : 1;
+      const multiplier = duckHeld() ? 3 : rex.vy > 0 ? 1.5 : 1;
       rex.vy += GRAVITY * multiplier * dt;
       rex.y += rex.vy * dt;
       if (rex.y >= GROUND) { rex.y = GROUND; rex.vy = 0; rex.grounded = true; rex.landing = 0.18; }
@@ -270,16 +306,16 @@
     if (spawnIn <= 0) {
       const bird = elapsed > 12 && Math.random() < 0.3;
       const h = bird ? 24 : 32 + Math.floor(Math.random() * 3) * 8;
-      obstacles.push({ x: WIDTH + 24, y: bird ? GROUND - 60 : GROUND - h,
+      obstacles.push({ x: WIDTH + 24, y: bird ? GROUND - 48 : GROUND - h,
         w: bird ? 42 : 26, h, bird });
       // At least 1.25 seconds between obstacles, even at maximum speed.
       spawnIn = 1.25 + Math.random() * 0.7;
     }
     for (const obstacle of obstacles) obstacle.x -= speed() * dt;
     obstacles = obstacles.filter(o => o.x + o.w > -20);
-    if (obstacles.some(o => playerBoxes().some(b => overlaps(b, {
-      x: o.x + 3, y: o.y + 3, w: o.w - 6, h: o.h - 3
-    })))) {
+    if (obstacles.some(o => playerBoxes().some(b => overlaps(b, o.bird
+      ? { x: o.x + 3, y: o.y + 8, w: o.w - 6, h: 17 }
+      : { x: o.x + 3, y: o.y + 3, w: o.w - 6, h: o.h - 3 })))) {
       tone('hit');
       deadAt = performance.now();
       setMode('over');
@@ -289,7 +325,7 @@
     return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
   }
   function catPose() {
-    const duck = held.has('ArrowDown') && rex.grounded;
+    const duck = duckHeld() && rex.grounded;
     const phase = distance / 22;
     const squash = rex.grounded ? Math.sin(rex.landing / 0.18 * Math.PI) * 5 : 0;
     const bob = rex.grounded && !duck ? Math.sin(phase * 2) * 1.5 : 0;
@@ -299,7 +335,7 @@
     const pose = catPose();
     return [
       { x: rex.x + 3, y: pose.top + 2, w: 39, h: pose.duck ? 13 : 17 },
-      { x: rex.x + 37, y: pose.top - 5, w: 19, h: 18 }
+      { x: rex.x + 35, y: pose.top - (pose.duck ? 3 : 7), w: 25, h: pose.duck ? 23 : 27 }
     ];
   }
   function drawObstacle(o) {

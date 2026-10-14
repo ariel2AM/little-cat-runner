@@ -8,7 +8,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 h1 { font-family: system-ui, sans-serif; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.045em; font-weight: 600; margin: 48px 0 12px; }
 .intro { font-size: 13px; line-height: 1.7; color: #737a73; }
 .playfield { margin-top: 32px; border: 1px solid #d9ddd3; border-radius: 8px; overflow: hidden; background: #fffefb; }
-canvas { display: block; width: 100%; height: auto; outline-offset: -4px; touch-action: manipulation; }
+canvas { display: block; width: 100%; height: auto; outline-offset: -4px; touch-action: none; image-rendering: pixelated; }
 canvas:focus-visible, button:focus-visible { outline: 2px solid #607c63; }
 .game-footer { border-top: 1px solid #ebece5; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 10px; letter-spacing: .12em; }
 button { font: inherit; color: inherit; background: transparent; border: 1px solid #d9ddd3; border-radius: 4px; padding: 7px 12px; cursor: pointer; }
@@ -19,6 +19,9 @@ kbd { display: inline-block; font: inherit; color: #39413d; border: 1px solid #d
 @media (max-width: 540px) { main { padding: 28px 16px; } header { flex-wrap: wrap; } h1 { margin-top: 32px; } .controls { gap: 8px 16px; } }
 
 .buttons { display: flex; gap: 8px; letter-spacing: normal; }
+.touch-controls { display: flex; justify-content: flex-end; margin-top: 12px; }
+.touch-controls button { min-width: 150px; min-height: 48px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.touch-controls button:active { background: #e5e9e0; }
 @media (max-width: 540px) { .game-footer { flex-wrap: wrap; gap: 12px; } }
 
 .score-panel { margin-top: 16px; padding: 20px; border: 1px solid #d9ddd3; border-radius: 8px; background: #fffefb; }

@@ -12,9 +12,10 @@
   <main>
     <header><h1 class="game-title">Little Cat</h1></header>
     <section class="playfield" aria-label="Cat runner game">
-      <canvas id="game" width="960" height="320" tabindex="0" aria-label="Cat runner. Space or up arrow to jump, down arrow to duck, P to pause."></canvas>
+      <canvas id="game" width="960" height="320" tabindex="0" aria-label="Cat runner. Space or up arrow to jump, down arrow to duck, P to pause. Touch the game to jump or hold Duck to crouch and fall faster."></canvas>
       <div class="game-footer"><span id="status" role="status">Ready</span><div class="buttons"><button id="sound" type="button" aria-pressed="false">Sound: off</button><button id="pause" type="button" disabled>Pause</button></div></div>
     </section>
+    <div class="touch-controls"><button id="duck" type="button" aria-label="Hold to duck or fall faster">Hold to duck ↓</button></div>
     <section id="score-panel" class="score-panel" aria-labelledby="score-title" hidden>
       <h2 id="score-title">Save your run</h2>
       <p id="run-result"></p>
@@ -30,7 +31,7 @@
       <h3>Player bests</h3>
       <ol id="player-bests"></ol>
     </section>
-    <div class="controls"><span><kbd>SPACE</kbd> Jump</span><span><kbd>↓</kbd> Duck</span><span><kbd>P</kbd> Pause</span></div>
+    <div class="controls"><span><kbd>SPACE</kbd> / <kbd>↑</kbd> Jump</span><span><kbd>↓</kbd> Duck / fast fall</span><span><kbd>P</kbd> Pause</span><span>Touch the game to jump; hold Duck to crouch.</span></div>
     <p id="storage-note" class="note" role="status" hidden></p>
     <footer class="note">Made for vibe coding practice.</footer>
   </main>

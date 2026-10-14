@@ -1,8 +1,6 @@
 # Little Cat 🐾
 
-**A mini game made for vibe coding practice.** 
-See in Githhub Page:https://ariel2am.github.io/little-cat-runner/
-
+**A mini game made for vibe coding practice.** [Play on GitHub Pages](https://ariel2am.github.io/little-cat-runner/).
 
 Built iteratively with AI assistance to explore game mechanics, pixel animation, and simple browser development. This is a learning project, not an official Google game.
 
@@ -14,12 +12,13 @@ Download and extract the project, then open `index.html` in Chrome. Keep `game.j
 
 - **Space / ↑:** jump. Tap for a short hop; hold for a higher jump.
 - **↓:** duck or fall faster.
+- **Touch:** touch the game to jump; hold the Duck button to crouch or fall faster. Both controls support multiple fingers.
 - **P:** pause/resume.
 - After game over, enter a name and save your score, or choose **Play again**.
 
 Only one jump is allowed before landing. The cat has short legs, pointed ears, and a fluffy tail that responds to actions. The game includes increasing speed, day/night transitions, optional synthesized sounds, and local player records.
 
-Repeated names share one leaderboard row; each saved run is retained and the highest score wins. Names and scores stay in your browser, not on a server. Moving from local play to the hosted site creates a separate set of records. Clearing browser data removes saved scores.
+Repeated names share one leaderboard row. The highest score is retained, along with up to 50 recent runs per player. Names and scores stay in your browser, not on a server. Moving from local play to the hosted site creates a separate set of records. Clearing browser data removes saved scores.
 
 ## Host on GitHub Pages
 
@@ -41,6 +40,4 @@ The `.nojekyll` file allows direct static hosting. All asset paths are relative,
 
 ## Testing
 
-JavaScript logic checks have covered movement, collisions, score saving, duplicate-name handling, and storage/audio fallbacks. The local page loaded in Chrome. Full visual, sound, and responsive browser testing remains incomplete; the latest sprite refinements have not had a full browser regression pass.
-
-For a manual check, play through jumping, ducking, collision, saving a named score, replaying, and reloading. Confirm a lower score does not replace a personal best. Check sound, night mode, and a narrow window.
+Check that a standing cat collides with birds, ducking passes underneath, and jumps can clear rocks. Also check sound, pause and resume, multi-touch controls, score saving, night mode, and a narrow window.
